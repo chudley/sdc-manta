@@ -389,8 +389,9 @@ function add_tags
 	[[ -z "$tag" ]] && fatal "unexpected empty nic tag"
 	for n in $nodes; do
 		mac_map=$(json mac_mappings.$n.$tag < $mn_config)
-		aggr_map=$(json aggr_mappings.$n.$tag < $mn_config)
 		[[ $? -eq 0 ]] || fatal "failed to get mac mapping via json"
+		aggr_map=$(json aggr_mappings.$n.$tag < $mn_config)
+		[[ $? -eq 0 ]] || fatal "failed to get aggr mapping via json"
 		if [[ -n $mac_map ]]; then
 			mac=$(echo $mac_map | sed -e 's/^0:/00:/' -e 's/:0:/:00:/g' -e \
 			    's/:0$/:00/g')
