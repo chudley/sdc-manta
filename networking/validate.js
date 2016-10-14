@@ -29,8 +29,8 @@ function main()
 	}
 	spec = JSON.parse(mod_fs.readFileSync(process.argv[2]));
 
-	if (!('mac_mappings' in spec))
-		fatal('missing mac_mappings');
+	if (!('network_interface_mappings' in spec))
+		fatal('missing network_interface_mappings');
 
 	if (!('marlin_nodes' in spec))
 		fatal('missing marlin_nodes');
@@ -42,13 +42,13 @@ function main()
 		fatal('no marlin CNs listed');
 
 	for (i = 0; i < spec['marlin_nodes'].length; i++) {
-		if (!(spec['marlin_nodes'][i] in spec['mac_mappings']))
-			fatal('missing node from mac_mappings: ' +
+		if (!(spec['marlin_nodes'][i] in spec['network_interface_mappings']))
+			fatal('missing node from network_interface_mappings: ' +
 			    spec['marlin_nodes'][i]);
 		if (!(spec['marlin']['nic_tag'] in
-		    spec['mac_mappings'][spec['marlin_nodes'][i]])) {
+		    spec['network_interface_mappings'][spec['marlin_nodes'][i]])) {
 			fatal('missing tag ' + spec['marlin']['nic_tag'] +
-			    ' in mac_mappings.' + spec['marlin_nodes'][i]);
+			    ' in network_interface_mappings.' + spec['marlin_nodes'][i]);
 		}
 	}
 
@@ -62,13 +62,13 @@ function main()
 		fatal('no indexing CNs listed');
 
 	for (i = 0; i < spec['manta_nodes'].length; i++) {
-		if (!(spec['manta_nodes'][i] in spec['mac_mappings']))
-			fatal('missing node from mac_mappings: ' +
+		if (!(spec['manta_nodes'][i] in spec['network_interface_mappings']))
+			fatal('missing node from network_interface_mappings: ' +
 			    spec['manta_nodes'][i]);
 		if (!(spec['manta']['nic_tag'] in
-		    spec['mac_mappings'][spec['manta_nodes'][i]])) {
+		    spec['network_interface_mappings'][spec['manta_nodes'][i]])) {
 			fatal('missing tag ' + spec['manta']['nic_tag'] +
-			    ' in mac_mappings.' + spec['manta_nodes'][i]);
+			    ' in network_interface_mappings.' + spec['manta_nodes'][i]);
 		}
 	}
 
