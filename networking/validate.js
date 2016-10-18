@@ -21,7 +21,7 @@ function fatal(message)
 
 function main()
 {
-	var spec, az, i;
+	var spec, az, i, mappings;
 
 	if (process.argv.length !== 3) {
 		console.error('validate.js: <file>');
@@ -29,8 +29,15 @@ function main()
 	}
 	spec = JSON.parse(mod_fs.readFileSync(process.argv[2]));
 
-	if (!('network_interface_mappings' in spec))
-		fatal('missing network_interface_mappings');
+	if (!('mac_mappings' in spec) &&
+		!('nic_mappings' in spec))
+		fatal('missing nic_mappings or mac_mappings');
+
+	if(('mac_mappings' in spec) &&
+		('nic_mappings' in spec))
+		fatal('either nic_mappings or mac_mappings');
+
+	mappings = spec['mac_mappings'] || spec['nic_mappings'];
 
 	if (!('marlin_nodes' in spec))
 		fatal('missing marlin_nodes');
@@ -42,13 +49,13 @@ function main()
 		fatal('no marlin CNs listed');
 
 	for (i = 0; i < spec['marlin_nodes'].length; i++) {
-		if (!(spec['marlin_nodes'][i] in spec['network_interface_mappings']))
-			fatal('missing node from network_interface_mappings: ' +
+		if (!(spec['marlin_nodes'][i] in mappings))
+			fatal('missing node from mappings: ' +
 			    spec['marlin_nodes'][i]);
 		if (!(spec['marlin']['nic_tag'] in
-		    spec['network_interface_mappings'][spec['marlin_nodes'][i]])) {
+		    mappings[spec['marlin_nodes'][i]])) {
 			fatal('missing tag ' + spec['marlin']['nic_tag'] +
-			    ' in network_interface_mappings.' + spec['marlin_nodes'][i]);
+			    ' in mac_mappings.' + spec['marlin_nodes'][i]);
 		}
 	}
 
@@ -62,13 +69,13 @@ function main()
 		fatal('no indexing CNs listed');
 
 	for (i = 0; i < spec['manta_nodes'].length; i++) {
-		if (!(spec['manta_nodes'][i] in spec['network_interface_mappings']))
-			fatal('missing node from network_interface_mappings: ' +
+		if (!(spec['manta_nodes'][i] in mappings))
+			fatal('missing node from mac_mappings: ' +
 			    spec['manta_nodes'][i]);
 		if (!(spec['manta']['nic_tag'] in
-		    spec['network_interface_mappings'][spec['manta_nodes'][i]])) {
+		    mappings[spec['manta_nodes'][i]])) {
 			fatal('missing tag ' + spec['manta']['nic_tag'] +
-			    ' in network_interface_mappings.' + spec['manta_nodes'][i]);
+			    ' in mac_mappings.' + spec['manta_nodes'][i]);
 		}
 	}
 
