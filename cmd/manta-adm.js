@@ -395,6 +395,11 @@ MantaAdm.prototype.do_update = function (subcmd, opts, args, callback)
 	if (args.length == 2)
 		service = args[1];
 
+	if(service && (madm.mSvcNames.indexOf(service) == -1)) {
+		callback(new VError('%s is not a valid manta service', service));
+		return;
+	}
+
 	vasync.pipeline({
 	    'funcs': [
 		function initAdm(_, stepcb) {
