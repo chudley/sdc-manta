@@ -376,8 +376,8 @@ function fetch_ufds_ids
 
 function add_tags
 {
-	local stanza nid nodes n map nmap mac aggr ouuid existing_tags \
-		update_tags
+	local stanza nid nodes n map mac aggr ouuid existing_tags \
+		update_tags aggr
 	stanza=$1
 	nid=$2
 	[[ -z "$stanza" ]] && fatal "missing required stanza for add_tags"
@@ -391,29 +391,17 @@ function add_tags
 	for n in $nodes; do
 		map=$(json mac_mappings.$n.$tag nic_mappings.$n.$tag < $mn_config)
 		[[ $? -eq 0 ]] || fatal "failed to get interface mapping via json"
-		[[ -z $map ]] && fatal "empty $tag interface mapping " \
-			"for $n"
-		if [[ $map =~ : ]]; then
-			mac=$(echo $map | sed -e 's/^0:/00:/' \
-				-e 's/:0:/:00:/g' -e 's/:0$/:00/g')
-			[[ $? -eq 0 ]] || fatal "failed to translate mac"
-			nmap=$(echo $mac | sed 's/://g')
-			[[ $? -eq 0 ]] || fatal "failed to translate mac"
-			ouuid=$(sdc-napi /nics/$nmap | json -H belongs_to_uuid)
-			[[ $? -eq 0 ]] || fatal "failed to get server uuid for: $mac"
-			[[ "$ouuid" == "$n" ]] || fatal "mapping does not match " \
-			    "nic owner for $mac, expected it to be $n, found $ouuid"
-			sdc-napi /nics/$nmap | json -H nic_tags_provided | json -a | \
-				grep -q "^$tag$" && continue
-			sdc-server update-nictags -s $n "${tag}_nic=$mac"
-		elif [[ ! $map =~ : ]]; then
-			aggr=$(sdc-napi /aggregations/$n-$map | \
-				json -aH belongs_to_uuid name -d-)
-			[[ -n $aggr ]] || fatal "aggr $n-$map doesn't exist"
+		[[ -z $map ]] && fatal "empty $tag interface mapping for $n"
+		aggr=$(sdc-napi /aggregations/$n-$map | \
+			json -aH belongs_to_uuid name -d-)
+		[[ $? -eq 0 ]] || fatal "failed to get aggregation for $n-$map"
+		mac=$(sdc-napi /nics/$map | json -aH mac)
+		[[ $? -eq 0 ]] || fatal "failed to get mac for $map"
+		[[ -n $aggr ]]; then
 			ouuid=$(sdc-napi /aggregations/$aggr | json -H belongs_to_uuid)
 			[[ $? -eq 0 ]] || fatal "failed to get server uuid for: $aggr"
 			[[ "$ouuid" == "$n" ]] || fatal "mapping does not match " \
-			    "aggr owner for $aggr, expected it to be $n, found $ouuid"
+			    "nic owner for $aggr, expected it to be $n, found $ouuid"
 			sdc-napi /aggregations/$aggr | json -H nic_tags_provided | \
 				json -a | grep -q "^$tag$" && continue
 			existing_tags=$(sdc-napi /aggregations/$aggr | \
@@ -421,6 +409,16 @@ function add_tags
 			update_tags=$(echo $existing_tags $'\n' "[\"$tag\"]" | json -g)
 			sdc-napi /aggregations/$aggr -X PUT -d \
 				"{\"nic_tags_provided\": $update_tags}"
+		elif [[ -n $mac ]]; then
+			ouuid=$(sdc-napi /nics/$mac | json -H belongs_to_uuid)
+			[[ $? -eq 0 ]] || fatal "failed to get server uuid for: $mac"
+			[[ "$ouuid" == "$n" ]] || fatal "mapping does not match " \
+			    "aggr owner for $mac, expected it to be $n, found $ouuid"
+			sdc-napi /nics/$mac | json -H nic_tags_provided | json -a | \
+				grep -q "^$tag$" && continue
+			sdc-server update-nictags -s $n "${tag}_nic=$mac"
+		else
+			fatal "interface $map not found"
 		fi
 		[[ $? -eq 0 ]] || fatal "failed to add nic tag"
 	done
