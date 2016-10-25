@@ -388,18 +388,16 @@ function add_tags
 	[[ $? -eq 0 ]] || fatal "failed to get nic tag for stanza $stanza"
 	[[ -z "$tag" ]] && fatal "unexpected empty nic tag"
 	for n in $nodes; do
-		map=$(json mac_mappings.$n.$tag < $mn_config)
+		mac=$(json mac_mappings.$n.$tag < $mn_config)
 		[[ $? -eq 0 ]] || fatal "failed to get mac mapping via json"
-		[[ -z "$map" ]] && "empty mac mapping"
-		mac=$(echo $map | sed -e 's/^0:/00:/' -e 's/:0:/:00:/g' -e \
-		    's/:0$/:00/g')
-		[[ $? -eq 0 ]] || fatal "failed to translate mac"
-		nmap=$(echo $mac | sed 's/://g')
+		[[ -z "$mac" ]] && fatal "empty mac mapping"
+		nmap=$(echo $mac | sed -e 's/[-:\.]//g')
 		[[ $? -eq 0 ]] || fatal "failed to translate mac"
 		ouuid=$(sdc-napi /nics/$nmap | json -H belongs_to_uuid)
-		[[ $? -eq 0 ]] || fatal "failed to get server uuid for: $map"
+		[[ $? -eq 0 ]] || fatal "failed to get server uuid for: $mac"
+		[[ -z "$ouuid" ]] && fatal "nic $mac not found at /nics/$nmap"
 		[[ "$ouuid" == "$n" ]] || fatal "mapping does nic not match " \
-		    "nic owner for $map, expected it to be $n, found $ouuid"
+		    "nic owner for $mac, expected it to be $n, found $ouuid"
 		sdc-napi /nics/$nmap | json -H nic_tags_provided | json -a | \
 		    grep -q "^$tag$" && continue
 		sdc-server update-nictags -s $n "${tag}_nic=$mac"
