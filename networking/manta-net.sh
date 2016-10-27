@@ -376,7 +376,7 @@ function fetch_ufds_ids
 
 function add_tags
 {
-	local stanza nid nodes n map nmap mac ouuid
+	local stanza nid nodes n map nmap ouuid existing_tags update_tags
 	stanza=$1
 	nid=$2
 	[[ -z "$stanza" ]] && fatal "missing required stanza for add_tags"
@@ -392,7 +392,7 @@ function add_tags
 		[[ $? -eq 0 ]] || fatal "failed to get nic mapping via json"
 		[[ -z "$map" ]] && fatal "empty $tag interface mapping " \
 			"for $n"
-		if [[ $map =~ : ]]; then
+		if [[ "$map" =~ ":" ]]; then
 			nmap=$(echo $map | sed -e 's/[-:\.]//g')
 			[[ $? -eq 0 ]] || fatal "failed to translate mac"
 			ouuid=$(sdc-napi /nics/$nmap | json -H belongs_to_uuid)
@@ -403,7 +403,7 @@ function add_tags
 			sdc-napi /nics/$nmap | json -H nic_tags_provided | json -a | \
 				grep -q "^$tag$" && continue
 			sdc-server update-nictags -s $n "${tag}_nic=$map"
-		elif [[ ! $map =~ : ]]; then
+		elif [[ ! "$map" =~ ":" ]]; then
 			ouuid=$(sdc-napi /aggregations/$n-$map | json -H belongs_to_uuid)
 			[[ $? -eq 0 ]] || fatal "failed to get server uuid for $n-$map"
 			[[ -z "$ouuid" ]] && fatal "aggr $map not found at " \
