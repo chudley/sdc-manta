@@ -396,7 +396,7 @@ function add_tags
 		ouuid=$(sdc-napi /nics/$nmap | json -H belongs_to_uuid)
 		[[ $? -eq 0 ]] || fatal "failed to get server uuid for: $mac"
 		[[ -z "$ouuid" ]] && fatal "nic $mac not found at /nics/$nmap"
-		[[ "$ouuid" == "$n" ]] || fatal "mapping does nic not match " \
+		[[ "$ouuid" == "$n" ]] || fatal "mapping does not match " \
 		    "nic owner for $mac, expected it to be $n, found $ouuid"
 		sdc-napi /nics/$nmap | json -H nic_tags_provided | json -a | \
 		    grep -q "^$tag$" && continue
