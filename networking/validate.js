@@ -61,7 +61,7 @@ function main()
 			tag = mappings[spec['marlin_nodes'][i]][spec['marlin']['nic_tag']];
 			if (!(tag instanceof Object)) {
 				fatal('nic_mappings.' + spec['marlin_nodes'][i] + '.' +
-				    spec['marlin']['nic_tag'] + ' must be an object.');
+				    spec['marlin']['nic_tag'] + ' must be an object');
 			}
 			if (!('mac' in tag) && !('aggr' in tag)) {
 				fatal('nic_mappings.' + spec['marlin_nodes'][i] + '.' +
@@ -93,7 +93,7 @@ function main()
 			tag = mappings[spec['manta_nodes'][i]][spec['manta']['nic_tag']];
 			if (!(tag instanceof Object)) {
 				fatal('nic_mappings.' + spec['manta_nodes'][i] + '.' +
-				    spec['manta']['nic_tag'] + ' must be an object.');
+				    spec['manta']['nic_tag'] + ' must be an object');
 			}
 			if (!('mac' in tag) && !('aggr' in tag)) {
 				fatal('nic_mappings.' + spec['manta_nodes'][i] + '.' +

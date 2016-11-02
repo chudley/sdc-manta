@@ -376,7 +376,8 @@ function fetch_ufds_ids
 
 function add_tags
 {
-	local stanza nid nodes n map nmap mac ouuid
+	local stanza nid nodes tag n map if_type interface mac nmap aggr \
+		ouuid existing_tags update_tags
 	stanza=$1
 	nid=$2
 	[[ -z "$stanza" ]] && fatal "missing required stanza for add_tags"
@@ -404,7 +405,10 @@ function add_tags
 		fi
 
 		if [[ "$if_type" == "mac" ]]; then
-			nmap=$(echo $interface | sed -e 's/[-:\.]//g')
+			mac=$(echo $interface | sed -e 's/^0:/00:/' -e 's/:0:/:00:/g' -e \
+			    's/:0$/:00/g')
+			[[ $? -eq 0 ]] || fatal "failed to translate mac"
+			nmap=$(echo $mac | sed -e 's/://g')
 			[[ $? -eq 0 ]] || fatal "failed to translate mac"
 			ouuid=$(sdc-napi /nics/$nmap | json -H belongs_to_uuid)
 			[[ $? -eq 0 ]] || fatal "failed to get server uuid for $interface"
@@ -415,18 +419,19 @@ function add_tags
 				grep -q "^$tag$" && continue
 			sdc-server update-nictags -s $n "${tag}_nic=$interface"
 		elif [[ "$if_type" == "aggr" ]]; then
-			ouuid=$(sdc-napi /aggregations/$n-$interface | json -H belongs_to_uuid)
-			[[ $? -eq 0 ]] || fatal "failed to get server uuid for $n-$interface"
+			aggr=$n-$interface
+			ouuid=$(sdc-napi /aggregations/$aggr | json -H belongs_to_uuid)
+			[[ $? -eq 0 ]] || fatal "failed to get server uuid for $aggr"
 			[[ -z "$ouuid" ]] && fatal "aggr $interface not found at " \
-				"/aggregations/$n-$interface"
+				"/aggregations/$aggr"
 			[[ "$ouuid" == "$n" ]] || fatal "mapping does not match " \
-			    "aggr owner for $n-$interface, expected it to be $n, found $ouuid"
-			sdc-napi /aggregations/$n-$interface | json -H nic_tags_provided | \
+			    "aggr owner for $aggr, expected it to be $n, found $ouuid"
+			sdc-napi /aggregations/$aggr | json -H nic_tags_provided | \
 				json -a | grep -q "^$tag$" && continue
-			existing_tags=$(sdc-napi /aggregations/$n-$interface | \
+			existing_tags=$(sdc-napi /aggregations/$aggr | \
 				json -aH nic_tags_provided)
 			update_tags=$(echo $existing_tags $'\n' "[\"$tag\"]" | json -g)
-			sdc-napi /aggregations/$n-$interface -X PUT -d \
+			sdc-napi /aggregations/$aggr -X PUT -d \
 				"{\"nic_tags_provided\": $update_tags}"
 		fi
 		[[ $? -eq 0 ]] || fatal "failed to add nic tag"
