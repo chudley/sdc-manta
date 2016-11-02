@@ -395,7 +395,7 @@ function add_tags
 			"for $n"
 
 		if $(echo $map | json --validate -q); then
-			if_type=$(echo $map | json -k | json 0)
+			if_type=$(echo $map | json -ka)
 			[[ $? -eq 0 ]] || fatal "failed to translate mapping"
 			interface=$(echo $map | json $if_type)
 			[[ $? -eq 0 ]] || fatal "failed to translate mapping"

@@ -21,7 +21,7 @@ function fatal(message)
 
 function main()
 {
-	var spec, az, i, mappings, tag;
+	var spec, az, i, mappings, nic;
 
 	if (process.argv.length !== 3) {
 		console.error('validate.js: <file>');
@@ -57,16 +57,21 @@ function main()
 			fatal('missing tag ' + spec['marlin']['nic_tag'] +
 			    ' in mac_mappings.' + spec['marlin_nodes'][i]);
 		}
-		if (spec['nic_mappings']) {
-			tag = mappings[spec['marlin_nodes'][i]][spec['marlin']['nic_tag']];
-			if (!(tag instanceof Object)) {
+		nic = mappings[spec['marlin_nodes'][i]][spec['marlin']['nic_tag']];
+		if ('mac_mappings' in spec) {
+			if (!(typeof nic === 'string'))
+				fatal('mac_mappings.' + spec['marlin_nodes'][i] + '.' +
+				    spec['marlin']['nic_tag'] + ' must be a string');
+		}
+		if ('nic_mappings' in spec) {
+			if (!(nic instanceof Object))
 				fatal('nic_mappings.' + spec['marlin_nodes'][i] + '.' +
 				    spec['marlin']['nic_tag'] + ' must be an object');
-			}
-			if (!('mac' in tag) && !('aggr' in tag)) {
+			if (Object.keys(nic).length > 1 ||
+				!('mac' in nic) && !('aggr' in nic)) {
 				fatal('nic_mappings.' + spec['marlin_nodes'][i] + '.' +
-				    spec['marlin']['nic_tag'] + ' must have property ' +
-				    '"mac" or "aggr"');
+				    spec['marlin']['nic_tag'] + ' must only have ' +
+					'property "mac" or "aggr"');
 			}
 		}
 	}
@@ -89,16 +94,21 @@ function main()
 			fatal('missing tag ' + spec['manta']['nic_tag'] +
 			    ' in mac_mappings.' + spec['manta_nodes'][i]);
 		}
-		if (spec['nic_mappings']) {
-			tag = mappings[spec['manta_nodes'][i]][spec['manta']['nic_tag']];
-			if (!(tag instanceof Object)) {
+		nic = mappings[spec['manta_nodes'][i]][spec['manta']['nic_tag']];
+		if ('mac_mappings' in spec) {
+			if (!(typeof nic === 'string'))
+				fatal('mac_mappings.' + spec['manta_nodes'][i] + '.' +
+				    spec['manta']['nic_tag'] + ' must be a string');
+		}
+		if ('nic_mappings' in spec) {
+			if (!(nic instanceof Object))
 				fatal('nic_mappings.' + spec['manta_nodes'][i] + '.' +
 				    spec['manta']['nic_tag'] + ' must be an object');
-			}
-			if (!('mac' in tag) && !('aggr' in tag)) {
+			if (Object.keys(nic).length > 1 ||
+				!('mac' in nic) && !('aggr' in nic)) {
 				fatal('nic_mappings.' + spec['manta_nodes'][i] + '.' +
-				    spec['manta']['nic_tag'] + ' must have property ' +
-				    '"mac" or "aggr"');
+				    spec['manta']['nic_tag'] + ' must only have ' +
+					'property "mac" or "aggr"');
 			}
 		}
 	}
