@@ -296,6 +296,7 @@ Available fields for the `-o/--columns` option include:
 
 * `datacenter`: the name of the datacenter in which this zone is deployed
 * `image`: the uuid of the zone's image
+* `version`: the version of the zone's image
 * `primary_ip`: the primary IP address for this zone
 * `service`: the name of the service this zone is part of
 * `shard`: the metadata shard number for this zone.  This is only meaningful
@@ -312,7 +313,7 @@ Available fields for the `-o/--columns` option include:
 
 Note that the "count" field is only meaningful when `-s/--summarize` is
 specified.  The only other fields that are meaningful when `-s/--sumarize` is
-specified are "service", "image", and "shard".
+specified are "service", "image", "version", and "shard".
 
 Example: list all Manta zones in the current DC
 

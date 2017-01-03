@@ -310,6 +310,8 @@ Available fields for the \fB\fC\-o/\-\-columns\fR option include:
 .IP \(bu 2
 \fB\fCimage\fR: the uuid of the zone's image
 .IP \(bu 2
+\fB\fCversion\fR: the version of the zone's image
+.IP \(bu 2
 \fB\fCprimary_ip\fR: the primary IP address for this zone
 .IP \(bu 2
 \fB\fCservice\fR: the name of the service this zone is part of
@@ -335,7 +337,7 @@ deployed
 .PP
 Note that the "count" field is only meaningful when \fB\fC\-s/\-\-summarize\fR is
 specified.  The only other fields that are meaningful when \fB\fC\-s/\-\-sumarize\fR is
-specified are "service", "image", and "shard".
+specified are "service", "image", "version", and "shard".
 .PP
 Example: list all Manta zones in the current DC
 .PP
