@@ -429,7 +429,7 @@ MantaAdm.prototype.do_update = function (subcmd, opts, args, callback)
 		},
 		function dumpPlan(_, stepcb) {
 			adm.execPlan(process.stdout, process.stderr,
-			    true, function (err, count) {
+			    true, opts.ignore_errors, function (err, count) {
 				if (err) {
 					stepcb(err);
 					return;
@@ -467,7 +467,7 @@ MantaAdm.prototype.do_update = function (subcmd, opts, args, callback)
 			}
 
 			adm.execPlan(process.stdout, process.stderr,
-			    false, stepcb);
+			    false, opts.ignore_errors, stepcb);
 		}
 	    ]
 	}, function (err) {
@@ -499,6 +499,11 @@ MantaAdm.prototype.do_update.options = [ {
     'type': 'bool',
     'help': 'When upgrading a zone, always provision and deprovision ' +
 	'rather than reprovision'
+}, {
+    'names': [ 'ignore-errors' ],
+    'type': 'bool',
+    'help': 'Ignore all reported errors (be very careful!)',
+    'default': false
 } ];
 
 MantaAdm.prototype.do_zk = MantaAdmZk;
