@@ -302,6 +302,18 @@ vasync.forEachPipeline({
 	    'action': 'provision',
 	    'image': 'img003'
 	} ]
+    }, {
+	'name': 'reprovision to nonexistent image uuid',
+	'changefunc': function (config) {
+		config['cn001']['moray']['1']['img009'] = 1;
+	},
+	'expect': [ {
+	    'cnid': 'cn001',
+	    'service': 'moray',
+	    'action': 'provision',
+	    'image': 'img009',
+	    'shard': '1'
+	} ]
     } ]
 }, function (err) {
 	if (err)

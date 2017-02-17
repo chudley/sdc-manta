@@ -133,13 +133,16 @@ function generateFakeBase(fakeDeployed, azCount) {
 				};
 				fakeBase['images'] = {
 				    'img001': {
-				        'version': 'master001'
+				        'version': 'master001',
+				        'name': 'manta-marlin'
 				    },
 				    'img002': {
-				        'version': 'master002'
+				        'version': 'master002',
+				        'name': 'manta-moray'
 				    },
 				    'img003': {
-				        'version': 'master003'
+				        'version': 'master003',
+				        'name': 'manta-postgres'
 				    }
 				};
 			}
