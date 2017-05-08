@@ -90,6 +90,7 @@ MantaAdm.prototype.initAdm = function (opts, callback)
 	});
 
 	this.madm_adm = new madm.MantaAdm(this.madm_log);
+	this.madm_adm.setConfigVersion(opts.d || 1);
 	this.madm_adm.loadSdcConfig(function (err) {
 		if (err)
 			fatal(err.message);
@@ -301,6 +302,11 @@ MantaAdm.prototype.do_show = function (subcmd, opts, args, callback)
 		}
 	}
 
+	if (opts.d && (!opts.json || !opts.summary)) {
+		callback(new Error('-d cannot be used without -j and -s'));
+		return;
+	}
+
 	if (args.length > 1) {
 		callback(new Error('unexpected arguments'));
 		return;
@@ -384,6 +390,10 @@ MantaAdm.prototype.do_show.options = [ {
     'names': [ 'summary', 's' ],
     'type': 'bool',
     'help': 'Show summary of deployed zones rather than each zone separately.'
+}, {
+    'names': [ 'd' ],
+    'type': 'number',
+    'help': 'version of the dumped json'
 } ];
 
 /*
