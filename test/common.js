@@ -151,7 +151,13 @@ function generateFakeBase(fakeDeployed, azCount) {
 				svc = fakeDeployed[cnid][svcname];
 
 				fakeBase['services'][svcid] = {
-					'name': svcname
+					'name': svcname,
+					'params': {
+						'networks': [
+							'admin',
+							'manta'
+						]
+					}
 				};
 				if (svcname == 'postgres' ||
 				    svcname == 'moray') {
@@ -223,9 +229,28 @@ function generateFakeBase(fakeDeployed, azCount) {
 					'server_uuid': params['cnid'],
 					'nics': [ {
 						'primary': true,
-						'ip4addr': '0.0.0.0'
+						'ip4addr': '0.0.0.0',
+						'network_uuid': 'network001',
+						'nic_tag': 'manta'
+					}, {
+						'ipv4addr': '0.0.0.0',
+						'network_uuid': 'network002',
+						'nic_tag': 'admin'
 					} ]
 				};
+				if (svcname === 'marlin' ||
+				    svcname === 'loadbalancer') {
+					fakeBase['vms'][id]['nics'].
+					    forEach(function (nic) {
+						delete nic.primary;
+					});
+					fakeBase['vms'][id]['nics'].push({
+						'primary': true,
+						'ipv4addr': '0.0.0.0',
+						'network_uuid': 'network003',
+						'nic_tag': 'external'
+					});
+				}
 			}
 		}
 	}

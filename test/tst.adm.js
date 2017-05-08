@@ -28,6 +28,7 @@ function runTestCase(t, callback)
 
 	console.log('test case "%s"', t['name']);
 	adm = new madm.MantaAdm(log);
+	adm.setConfigVersion(1);
 	adm.loadFakeDeployed(common.generateFakeBase(fakeDeployed, 1));
 	desired = jsprim.deepCopy(fakeDeployed);
 
