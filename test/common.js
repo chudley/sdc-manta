@@ -103,7 +103,8 @@ function generateFakeBase(fakeDeployed, azCount) {
 		'instances': { /* filled in below */ },
 		'vms': { /* filled in below */ },
 		'cns': { /* filled in below */ },
-		'images': { /* filled in below */ }
+		'images': { /* filled in below */ },
+		'networks': {}
 	};
 
 	for (azNum = 1; azNum <= azCount; azNum++) {
@@ -140,6 +141,17 @@ function generateFakeBase(fakeDeployed, azCount) {
 				    },
 				    'img003': {
 				        'version': 'master003'
+				    }
+				};
+				fakeBase['networks'] = {
+				    'network001': {
+					'name': 'manta'
+				    },
+				    'network002': {
+					'name': 'admin'
+				    },
+				    'network003': {
+					'name': 'external'
 				    }
 				};
 			}
